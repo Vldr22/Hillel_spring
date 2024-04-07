@@ -1,22 +1,19 @@
 package org.education.hillel_springhomework.service;
 
+import org.education.hillel_springhomework.exception.GlobalControllerExceptionHandler;
 import org.education.hillel_springhomework.model.Task;
 import org.education.hillel_springhomework.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Manager {
+
     private final UserManager userManager;
     private final TaskManager taskManager;
 
     private final Map<User, List<Task>> manager = new HashMap<>();
 
-    @Autowired
     public Manager(UserManager userManager, TaskManager taskManager) {
         this.userManager = userManager;
         this.taskManager = taskManager;
@@ -30,40 +27,51 @@ public class Manager {
         return taskManager;
     }
 
+    public Map<User, List<Task>> getManager() {
+        return manager;
+    }
+
     public void assignTask(User user, Task task) {
         if (!manager.isEmpty()) {
             for (Map.Entry<User, List<Task>> entry : manager.entrySet()) {
-                if (entry.getKey().hashCode() == user.hashCode()) {
+                if (entry.getKey().equals(user)) {
                     List<Task> temp = new LinkedList<>(entry.getValue());
                     temp.add(task);
                     entry.setValue(null);
                     entry.setValue(temp);
-                    System.out.println("User " + user.getNAME() + " task " + task.getName());
+                    System.out.println("User " + user.getName() + " task " + task.getName());
                 } else {
                     manager.put(user, List.of(task));
-                    System.out.println("User " + user.getNAME() + " task " + task.getName());
+                    System.out.println("User " + user.getName() + " task " + task.getName());
                     break;
                 }
             }
 
         } else {
             manager.put(user, List.of(task));
-            System.out.println("User " + user.getNAME() + " task " + task.getName());
+            System.out.println("User " + user.getName() + " task " + task.getName());
         }
 
     }
 
     public void printUserTasks(User user) {
-        manager.get(user).forEach(System.out::println);
+        for (Map.Entry<User, List<Task>> map : manager.entrySet()) {
+            if (map.getKey().equals(user)) {
+                map.getValue().forEach(System.out::println);
+            }
+        }
     }
 
     public void deleteUser(int userId) {
         User temp = userManager.getUsers().get(userId);
-        if (temp != null) {
-            manager.remove(getUserManager().getUsers().get(userId));
-            userManager.getUsers().remove(userId);
-            System.out.println("User " + temp + " is deleted");
-        } else System.out.println("user with the id " + userId + " is not in the system");
+        if (temp == null) {
+            throw new GlobalControllerExceptionHandler.NotFoundException(
+                    "User with this id " + userId + " is not found");
+        }
+
+        manager.remove(getUserManager().getUsers().get(userId));
+        userManager.getUsers().remove(userId);
+        System.out.println("User " + temp + " is deleted");
     }
 
     public void changeStatusOfTask(Task oldTask, String modifiedStatusOfTask) {
@@ -105,7 +113,6 @@ public class Manager {
                  * Через стримы тоже не получалось...*/
             });
         }
-
     }
 
     @Override

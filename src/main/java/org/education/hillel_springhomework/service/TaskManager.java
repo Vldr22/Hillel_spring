@@ -19,6 +19,7 @@ public class TaskManager {
         taskList.add(task);
         System.out.println("Task with name "+task.getName()+" is added");
     }
+
     public String getStatusOfTask(Task task) {
          return task.getStatusOfTask();
     }

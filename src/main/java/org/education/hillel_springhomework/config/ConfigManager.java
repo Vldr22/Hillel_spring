@@ -7,19 +7,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ConfigTaskManager {
+public class ConfigManager {
 
     @Bean
     public UserManager userManager() {
         return new UserManager();
     }
 
-
     @Bean
     public TaskManager taskManager() {
         return new TaskManager();
     }
-
 
     @Bean
     public Manager manager (UserManager userManager, TaskManager taskManager) {
