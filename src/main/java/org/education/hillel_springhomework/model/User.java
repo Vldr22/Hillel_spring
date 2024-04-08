@@ -2,16 +2,16 @@ package org.education.hillel_springhomework.model;
 
 public class User {
 
-    private final String NAME;
+    private final String name;
     private final int id;
 
     public User(String name, int id) {
-        this.NAME = name;
+        this.name = name;
         this.id = id;
     }
 
-    public String getNAME() {
-        return NAME;
+    public String getName() {
+        return name;
     }
 
     public int getId() {
@@ -21,7 +21,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "NAME='" + NAME + '\'' +
+                "NAME='" + name + '\'' +
                 ", id=" + id +
                 '}';
     }

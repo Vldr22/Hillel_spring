@@ -15,7 +15,7 @@ public class UserManager {
 
     public void addUser(User user) {
         users.put(user.getId(), user);
-        System.out.println("User "+user.getNAME()+" is added");
+        System.out.println("User "+user.getName()+" is added");
     }
 
     @Override

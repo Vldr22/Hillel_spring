@@ -1,9 +1,9 @@
 package org.education.hillel_springhomework.service;
 
+import org.education.hillel_springhomework.exception.GlobalControllerExceptionHandler;
 import org.education.hillel_springhomework.model.Task;
 import org.education.hillel_springhomework.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +22,10 @@ public class Manager {
         this.taskManager = taskManager;
     }
 
+    public Map<User, List<Task>> getManager() {
+        return manager;
+    }
+
     public UserManager getUserManager() {
         return userManager;
     }
@@ -38,17 +42,17 @@ public class Manager {
                     temp.add(task);
                     entry.setValue(null);
                     entry.setValue(temp);
-                    System.out.println("User " + user.getNAME() + " task " + task.getName());
+                    System.out.println("User " + user.getName() + " task " + task.getName());
                 } else {
                     manager.put(user, List.of(task));
-                    System.out.println("User " + user.getNAME() + " task " + task.getName());
+                    System.out.println("User " + user.getName() + " task " + task.getName());
                     break;
                 }
             }
 
         } else {
             manager.put(user, List.of(task));
-            System.out.println("User " + user.getNAME() + " task " + task.getName());
+            System.out.println("User " + user.getName() + " task " + task.getName());
         }
 
     }
@@ -59,11 +63,16 @@ public class Manager {
 
     public void deleteUser(int userId) {
         User temp = userManager.getUsers().get(userId);
-        if (temp != null) {
-            manager.remove(getUserManager().getUsers().get(userId));
-            userManager.getUsers().remove(userId);
-            System.out.println("User " + temp + " is deleted");
-        } else System.out.println("user with the id " + userId + " is not in the system");
+        if (temp == null) {
+            throw new GlobalControllerExceptionHandler.NotFoundException(
+                    "User with this id " + userId + " is not found");
+        }
+
+
+        manager.remove(getUserManager().getUsers().get(userId));
+        userManager.getUsers().remove(userId);
+        System.out.println("User " + temp + " is deleted");
+
     }
 
     public void changeStatusOfTask(Task oldTask, String modifiedStatusOfTask) {
