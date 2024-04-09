@@ -2,7 +2,6 @@ package org.education.hillel_springhomework.service;
 
 import org.education.hillel_springhomework.model.Task;
 import org.education.hillel_springhomework.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -16,7 +15,6 @@ public class Manager {
 
     private final Map<User, List<Task>> manager = new HashMap<>();
 
-    @Autowired
     public Manager(UserManager userManager, TaskManager taskManager) {
         this.userManager = userManager;
         this.taskManager = taskManager;
@@ -33,7 +31,7 @@ public class Manager {
     public void assignTask(User user, Task task) {
         if (!manager.isEmpty()) {
             for (Map.Entry<User, List<Task>> entry : manager.entrySet()) {
-                if (entry.getKey().hashCode() == user.hashCode()) {
+                if (entry.getKey().equals(user)) {
                     List<Task> temp = new LinkedList<>(entry.getValue());
                     temp.add(task);
                     entry.setValue(null);
@@ -59,11 +57,14 @@ public class Manager {
 
     public void deleteUser(int userId) {
         User temp = userManager.getUsers().get(userId);
-        if (temp != null) {
-            manager.remove(getUserManager().getUsers().get(userId));
-            userManager.getUsers().remove(userId);
-            System.out.println("User " + temp + " is deleted");
-        } else System.out.println("user with the id " + userId + " is not in the system");
+
+        if (temp == null) {
+            throw new IllegalArgumentException("User " + userId + " not found");
+        }
+
+        manager.remove(getUserManager().getUsers().get(userId));
+        userManager.getUsers().remove(userId);
+        System.out.println("User " + temp + " is deleted");
     }
 
     public void changeStatusOfTask(Task oldTask, String modifiedStatusOfTask) {
