@@ -34,10 +34,10 @@ public class Manager {
         if (!manager.isEmpty()) {
             for (Map.Entry<User, List<Task>> entry : manager.entrySet()) {
                 if (entry.getKey().equals(user)) {
-                    /*List<Task> temp = new LinkedList<>(entry.getValue());
-                    temp.add(task);*/
+
                     entry.setValue(Collections.singletonList(task));
                     System.out.println("User " + user.getName() + " task " + task.getName());
+
                 } else {
                     manager.put(user, List.of(task));
                     System.out.println("User " + user.getName() + " task " + task.getName());
@@ -58,16 +58,15 @@ public class Manager {
 
     public void deleteUser(int userId) {
         User temp = userManager.getUsers().get(userId);
+
         if (temp == null) {
             throw new GlobalControllerExceptionHandler.NotFoundException(
                     "User with this id " + userId + " is not found");
         }
-
-
+      
         manager.remove(getUserManager().getUsers().get(userId));
         userManager.getUsers().remove(userId);
         System.out.println("User " + temp + " is deleted");
-
     }
 
     public void changeStatusOfTask(Task oldTask, String modifiedStatusOfTask) {
