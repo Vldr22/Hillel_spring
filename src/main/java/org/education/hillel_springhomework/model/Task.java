@@ -63,7 +63,7 @@ public class Task {
         return "Task{" +
                 "NAME='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", deadLine=" + deadLine.getTime() +
+                ", deadLine=" + deadLine +
                 ", priority=" + priority +
                 ", statusOfTask='" + statusOfTask + '\'' +
                 '}';

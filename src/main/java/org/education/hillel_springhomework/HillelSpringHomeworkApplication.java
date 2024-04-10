@@ -6,10 +6,7 @@ import org.education.hillel_springhomework.service.Manager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-
-
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 @SpringBootApplication
@@ -40,13 +37,6 @@ public class HillelSpringHomeworkApplication {
                 "Use Multithreading with atomic operations",
                 new GregorianCalendar(2024, Calendar.MAY, 2, 20, 30),
                 5, "at work");
-
-
-        Calendar calendar = new GregorianCalendar();
-        System.out.println(calendar.getTime());
-
-        Date date = new Date();
-        System.out.println(date);
 
 
         manager.getUserManager().addUser(alex);

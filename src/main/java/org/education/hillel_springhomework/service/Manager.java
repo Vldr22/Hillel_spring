@@ -1,12 +1,10 @@
 package org.education.hillel_springhomework.service;
 
+import org.education.hillel_springhomework.exception.GlobalControllerExceptionHandler;
 import org.education.hillel_springhomework.model.Task;
 import org.education.hillel_springhomework.model.User;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Manager {
@@ -18,6 +16,10 @@ public class Manager {
     public Manager(UserManager userManager, TaskManager taskManager) {
         this.userManager = userManager;
         this.taskManager = taskManager;
+    }
+
+    public Map<User, List<Task>> getManager() {
+        return manager;
     }
 
     public UserManager getUserManager() {
@@ -32,21 +34,20 @@ public class Manager {
         if (!manager.isEmpty()) {
             for (Map.Entry<User, List<Task>> entry : manager.entrySet()) {
                 if (entry.getKey().equals(user)) {
-                    List<Task> temp = new LinkedList<>(entry.getValue());
-                    temp.add(task);
-                    entry.setValue(null);
-                    entry.setValue(temp);
-                    System.out.println("User " + user.getNAME() + " task " + task.getName());
+
+                    entry.setValue(Collections.singletonList(task));
+                    System.out.println("User " + user.getName() + " task " + task.getName());
+
                 } else {
                     manager.put(user, List.of(task));
-                    System.out.println("User " + user.getNAME() + " task " + task.getName());
+                    System.out.println("User " + user.getName() + " task " + task.getName());
                     break;
                 }
             }
 
         } else {
             manager.put(user, List.of(task));
-            System.out.println("User " + user.getNAME() + " task " + task.getName());
+            System.out.println("User " + user.getName() + " task " + task.getName());
         }
 
     }
@@ -59,9 +60,10 @@ public class Manager {
         User temp = userManager.getUsers().get(userId);
 
         if (temp == null) {
-            throw new IllegalArgumentException("User " + userId + " not found");
+            throw new GlobalControllerExceptionHandler.NotFoundException(
+                    "User with this id " + userId + " is not found");
         }
-
+      
         manager.remove(getUserManager().getUsers().get(userId));
         userManager.getUsers().remove(userId);
         System.out.println("User " + temp + " is deleted");
