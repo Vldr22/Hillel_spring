@@ -1,34 +1,32 @@
 package org.education.hillel_springhomework.config;
 
-import org.education.hillel_springhomework.DAO.DatabaseConnection;
-import org.education.hillel_springhomework.service.Manager;
-import org.education.hillel_springhomework.service.TaskManager;
-import org.education.hillel_springhomework.service.UserManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.sql.SQLException;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import javax.sql.DataSource;
 
 @Configuration
+@PropertySource("classpath:application.properties")
 public class ConfigTaskManager {
 
-    @Bean
-    public UserManager userManager() {
-        return new UserManager();
-    }
+    @Value("${spring.datasource.url}")
+    private String url;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
 
     @Bean
-    public TaskManager taskManager() {
-        return new TaskManager();
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
     }
-
-    @Bean
-    public Manager manager (UserManager userManager, TaskManager taskManager) {
-        return new Manager(userManager,taskManager);
-    }
-
-    @Bean
-    public DatabaseConnection databaseConnection() throws SQLException {
-        return new DatabaseConnection();
-    }
-
 }

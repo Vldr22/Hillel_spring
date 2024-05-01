@@ -1,5 +1,6 @@
 package org.education.hillel_springhomework.exception;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -7,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
 
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
@@ -68,6 +68,7 @@ public class GlobalControllerExceptionHandler {
         }
     }
 
+    @Getter
     public static class ErrorBody {
 
         private final String errorName;
@@ -76,14 +77,6 @@ public class GlobalControllerExceptionHandler {
         public ErrorBody(String errorName, String errorDetails) {
             this.errorName = errorName;
             this.errorDetails = errorDetails;
-        }
-
-        public String getErrorName() {
-            return errorName;
-        }
-
-        public String getErrorDetails() {
-            return errorDetails;
         }
 
     }

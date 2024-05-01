@@ -1,26 +1,27 @@
-package org.education.hillel_springhomework.DAO;
+package org.education.hillel_springhomework.repository.jdbc;
 
-import org.education.hillel_springhomework.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import org.education.hillel_springhomework.dto.User;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class UserDAO {
+@Repository
+@ConditionalOnProperty(name = "implementation", havingValue = "jdbc", matchIfMissing = true)
+public class UserDAOJDBC {
 
-   private final DatabaseConnection databaseConnection;
+    private final DataSource databaseConnection;
 
-    @Autowired
-    public UserDAO(DatabaseConnection databaseConnection) {
+    public UserDAOJDBC(DataSource databaseConnection) {
         this.databaseConnection = databaseConnection;
     }
 
-   public void addUser(User user) throws SQLException {
+    public void addUser(User user) throws SQLException {
         PreparedStatement preparedStatement =
-                databaseConnection.getConnection().prepareStatement("INSERT INTO users (name) VALUES (?)");
+                databaseConnection.getConnection()
+                        .prepareStatement("INSERT INTO users (name) VALUES (?)");
 
         preparedStatement.setString(1, user.getName());
         preparedStatement.executeUpdate();
@@ -34,6 +35,24 @@ public class UserDAO {
             users.add(new User(resultSet.getString("name")));
         }
         return users;
+    }
+
+    public User getUserById(int id) throws SQLException {
+        User user = null;
+        PreparedStatement preparedStatement =
+                databaseConnection.getConnection()
+                        .prepareStatement("SELECT * FROM users WHERE id = ?");
+
+        preparedStatement.setInt(1, id);
+
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {
+                user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setName(resultSet.getString("name"));
+            }
+        }
+        return user;
     }
 
     public void deleteUser(int id) throws SQLException {
@@ -54,6 +73,7 @@ public class UserDAO {
             connection.commit();
             System.out.println("Пользователь и его задачи успешно удалены!");
         } catch (SQLException exception) {
+            assert connection != null;
             connection.rollback();
             throw exception;
         } finally {

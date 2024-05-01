@@ -1,12 +1,10 @@
 package org.education.hillel_springhomework;
 
-import org.education.hillel_springhomework.DAO.DatabaseConnection;
-import org.education.hillel_springhomework.DAO.ManagerDAO;
-import org.education.hillel_springhomework.model.Task;
-import org.education.hillel_springhomework.model.User;
+import org.education.hillel_springhomework.dto.Task;
+import org.education.hillel_springhomework.dto.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
+
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -16,10 +14,10 @@ public class HillelSpringHomeworkApplication {
 
     public static void main(String[] args) throws SQLException {
 
-        ConfigurableApplicationContext applicationContext
-                = SpringApplication.run(HillelSpringHomeworkApplication.class, args);
+        SpringApplication.run(HillelSpringHomeworkApplication.class, args);
 
-        ManagerDAO managerDAO = applicationContext.getBean(ManagerDAO.class);
+        //ConfigurableApplicationContext context = SpringApplication.run(HillelSpringHomeworkApplication.class, args);
+        /* https://github.com/qnixdev/java_enterprise/pull/8*/
 
         Task task1 = new Task("Task 1",
                 "Create First Spring Java Application",
@@ -33,13 +31,19 @@ public class HillelSpringHomeworkApplication {
                 "Use Multithreading with atomic operations",
                 new GregorianCalendar(2024, Calendar.MAY, 2, 20, 30),
                 5, "at work");
+        Task task4 = new Task("Fours Task",
+                "do something",
+                new GregorianCalendar(2024, Calendar.MAY, 1, 13, 0),
+                7, "started");
+        Task task5 = new Task("Task 1",
+                "do ssdfsddfaffasdsomething",
+                new GregorianCalendar(2024, Calendar.MAY, 1, 13, 0),
+                7, "started");
 
         User alex = new User("Alex");
         User vlad = new User("Vlad");
         User olga = new User("Olga");
         User anna = new User("Anna");
-
-
 
     }
 }

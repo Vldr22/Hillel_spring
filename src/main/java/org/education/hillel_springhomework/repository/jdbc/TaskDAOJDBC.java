@@ -1,24 +1,39 @@
-package org.education.hillel_springhomework.DAO;
+package org.education.hillel_springhomework.repository.jdbc;
 
-import org.education.hillel_springhomework.model.Task;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import org.education.hillel_springhomework.dto.Task;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-@Component
-public class TaskDAO {
+@Repository
+@ConditionalOnProperty(name = "implementation", havingValue = "jdbc", matchIfMissing = true)
+public class TaskDAOJDBC {
 
-    private final DatabaseConnection databaseConnection;
+    private final DataSource databaseConnection;
 
-    @Autowired
-    public TaskDAO(DatabaseConnection databaseConnection) {
+    public TaskDAOJDBC(DataSource databaseConnection) {
         this.databaseConnection = databaseConnection;
     }
 
+    protected List<Task> getTask(ResultSet resultSet, List<Task> taskList) throws SQLException {
+        while (resultSet.next()) {
+            Timestamp deadlineTimestamp = resultSet.getTimestamp("deadline");
+            Calendar deadlineCalendar = Calendar.getInstance();
+            deadlineCalendar.setTimeInMillis(deadlineTimestamp.getTime());
+
+            taskList.add(new Task(resultSet.getString("name"),
+                    resultSet.getString("description"),
+                    deadlineCalendar,
+                    resultSet.getInt("priority"),
+                    resultSet.getString("status")));
+
+        }
+        return taskList;
+    }
 
     public void addTask(Task task) throws SQLException {
         PreparedStatement preparedStatement =
@@ -27,31 +42,16 @@ public class TaskDAO {
 
         preparedStatement.setString(1, task.getName());
         preparedStatement.setString(2, task.getDescription());
-        preparedStatement.setTimestamp(3, new Timestamp(task.getDeadLine().getTimeInMillis()));
+        preparedStatement.setTimestamp(3, new Timestamp(task.getDeadline().getTimeInMillis()));
         preparedStatement.setInt(4, task.getPriority());
         preparedStatement.setString(5, task.getStatusOfTask());
         preparedStatement.executeUpdate();
     }
 
-
     public List<Task> getAllTasks() throws SQLException {
         List<Task> tasks = new ArrayList<>();
-
-        ResultSet resultSet = databaseConnection.getConnection()
-                .createStatement().executeQuery("SELECT * FROM tasks");
-        while (resultSet.next()) {
-            Timestamp deadlineTimestamp = resultSet.getTimestamp("deadline");
-            Calendar deadlineCalendar = Calendar.getInstance();
-            deadlineCalendar.setTimeInMillis(deadlineTimestamp.getTime());
-
-            tasks.add(new Task(resultSet.getString("name"),
-                    resultSet.getString("description"),
-                    deadlineCalendar,
-                    resultSet.getInt("priority"),
-                    resultSet.getString("status")));
-
-        }
-        return tasks;
+        ResultSet resultSet = databaseConnection.getConnection().createStatement().executeQuery("SELECT * FROM tasks");
+        return getTask(resultSet, tasks);
     }
 
     public List<Task> allTaskByStatus(String status) throws SQLException {
@@ -134,7 +134,7 @@ public class TaskDAO {
 
         preparedStatement.setString(1, newTask.getName());
         preparedStatement.setString(2, newTask.getDescription());
-        preparedStatement.setTimestamp(3, new Timestamp(newTask.getDeadLine().getTimeInMillis()));
+        preparedStatement.setTimestamp(3, new Timestamp(newTask.getDeadline().getTimeInMillis()));
         preparedStatement.setInt(4, newTask.getPriority());
         preparedStatement.setString(5, newTask.getStatusOfTask());
         preparedStatement.setString(6, oldTask.getName());

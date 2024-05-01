@@ -1,35 +1,28 @@
-package org.education.hillel_springhomework.DAO;
+package org.education.hillel_springhomework.repository.jdbc;
 
-import org.education.hillel_springhomework.model.Task;
-import org.education.hillel_springhomework.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import lombok.Getter;
+import org.education.hillel_springhomework.dto.Task;
+import org.education.hillel_springhomework.dto.User;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
-@Component
-public class ManagerDAO {
+@Getter
+@Repository
+@ConditionalOnProperty(name = "implementation", havingValue = "jdbc", matchIfMissing = true)
+public class ManagerDAOJDBC {
 
-    private final DatabaseConnection databaseConnection;
-    private final UserDAO userDAO;
-    private final TaskDAO taskDAO;
+    private final DataSource databaseConnection;
+    private final UserDAOJDBC userDAO;
+    private final TaskDAOJDBC taskDAO;
 
-    public UserDAO getUserDAO() {
-        return userDAO;
-    }
-
-    public TaskDAO getTaskDAO() {
-        return taskDAO;
-    }
-
-    @Autowired
-    public ManagerDAO(DatabaseConnection databaseConnection, UserDAO userDAO, TaskDAO taskDAO) {
+    public ManagerDAOJDBC(DataSource databaseConnection, UserDAOJDBC userDAOJDBC, TaskDAOJDBC taskDAOJDBC) {
         this.databaseConnection = databaseConnection;
-        this.userDAO = userDAO;
-        this.taskDAO = taskDAO;
+        this.userDAO = userDAOJDBC;
+        this.taskDAO = taskDAOJDBC;
     }
 
     public void assignTask(User user, Task task) throws SQLException {
@@ -68,34 +61,35 @@ public class ManagerDAO {
     public void printUserTasks(int id) throws SQLException {
         List<Task> tasks = new ArrayList<>();
 
-        PreparedStatement managerStatement = databaseConnection.getConnection().prepareStatement(
+        PreparedStatement userStatement = databaseConnection.getConnection().prepareStatement(
                 "SELECT * FROM manager_of_tasks WHERE user_id = ?");
 
-       PreparedStatement taskStatement = databaseConnection.getConnection().prepareStatement(
-               "SELECT * FROM tasks WHERE name = ?");
+        PreparedStatement taskStatement = databaseConnection.getConnection().prepareStatement(
+                "SELECT * FROM tasks WHERE name = ?");
 
-        managerStatement.setInt(1, id);
-        String userName;
-        try (ResultSet userResult = managerStatement.executeQuery()) {
+        userStatement.setInt(1, id);
+        String taskName;
+        List<String> taskNameList = new ArrayList<>();
+
+        try (ResultSet userResult = userStatement.executeQuery()) {
             if (userResult.next()) {
-                userName = userResult.getString(3);
+                userResult.getString(2);
             } else {
                 throw new SQLException("Не удалось получить ИМЯ пользователя");
             }
         }
 
-        taskStatement.setString(1,userName);
-        ResultSet resultSet = taskStatement.executeQuery();
-        while (resultSet.next()) {
-            Timestamp deadlineTimestamp = resultSet.getTimestamp("deadline");
-            Calendar deadlineCalendar = Calendar.getInstance();
-            deadlineCalendar.setTimeInMillis(deadlineTimestamp.getTime());
+        try (ResultSet userResult = userStatement.executeQuery()) {
+            while (userResult.next()) {
+                taskName = userResult.getString(1);
+                taskNameList.add(taskName);
+            }
+        }
 
-            tasks.add(new Task(resultSet.getString("name"),
-                    resultSet.getString("description"),
-                    deadlineCalendar,
-                    resultSet.getInt("priority"),
-                    resultSet.getString("status")));
+        for (String string : taskNameList) {
+            taskStatement.setString(1, string);
+            ResultSet resultSet = taskStatement.executeQuery();
+            getTaskDAO().getTask(resultSet, tasks);
         }
         System.out.println(tasks);
     }
