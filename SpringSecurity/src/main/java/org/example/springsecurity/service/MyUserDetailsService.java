@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,8 +25,12 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         User user = serviceDTO.findByUsername(username);
-        Assert.notNull(user,"No user found with username: " + username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("No user found with username: "+username);
+        }
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
