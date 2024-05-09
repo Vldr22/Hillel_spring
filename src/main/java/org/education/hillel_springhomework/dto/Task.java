@@ -2,11 +2,13 @@ package org.education.hillel_springhomework.dto;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
+@NoArgsConstructor
 @Entity
 @Table(name = "tasks")
 @Data
@@ -35,10 +37,6 @@ public class Task {
         this.deadline = deadLine;
         this.priority = priority;
         this.statusOfTask = statusOfTask;
-    }
-
-    public Task() {
-
     }
 
     @ManyToMany(mappedBy = "tasks")
